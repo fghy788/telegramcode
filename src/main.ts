@@ -7,6 +7,6 @@ async function bootstrap() {
   await NestFactory.createApplicationContext(AppModule, {
     logger: ['log', 'error', 'warn', 'debug', 'verbose'],
   });
-  logger.log('NestCode bot started');
+  logger.log('TelegramCode bot started');
 }
 bootstrap();
