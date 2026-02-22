@@ -59,7 +59,7 @@ export class MessageHandler {
             );
             if (progressText !== lastProgressText) {
               lastProgressText = progressText;
-              void ctx.api.sendMessage(chatId, progressText).catch(() => {});
+              void ctx.api.sendMessage(chatId, progressText, { parse_mode: 'HTML' }).catch(() => {});
             }
           } else if (progress.type === 'text') {
             if (lastProgressText !== m.generating) {
@@ -78,7 +78,8 @@ export class MessageHandler {
       );
       this.stateService.setLastChangedFiles(cid, changes);
 
-      let response = `${m.taskComplete}\n\n${result.output}`;
+      const formattedOutput = this.fmt.formatClaudeOutput(result.output);
+      let response = `${m.taskComplete}\n\n${formattedOutput}`;
       if (changes.length > 0) {
         response += `\n\n${m.changedFiles}`;
         for (const change of changes) {
@@ -94,11 +95,12 @@ export class MessageHandler {
               : change.type === 'modified'
                 ? m.changeModified
                 : m.changeDeleted;
-          response += `\n ${icon} ${path.relative(state.projectPath!, change.path)} (${label})`;
+          const relPath = path.relative(state.projectPath!, change.path);
+          response += `\n ${icon} <code>${this.fmt.escapeHTML(relPath)}</code> (${label})`;
         }
         response += `\n\n${m.filesDownload}`;
       }
-      await this.fmt.replyPlain(ctx, response);
+      await this.fmt.reply(ctx, response);
     } catch (error: any) {
       this.logger.error(`Claude Code error: ${error.message}`);
       await this.fmt.reply(ctx, m.errorOccurred(error.message));

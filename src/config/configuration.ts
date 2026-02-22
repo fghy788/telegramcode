@@ -8,6 +8,5 @@ export default () => ({
   },
   claude: {
     defaultProjectPath: process.env.DEFAULT_PROJECT_PATH || '/Users/kimbab/Desktop',
-    timeoutMs: parseInt(process.env.CLAUDE_TIMEOUT_MS ?? '300000', 10),
   },
 });

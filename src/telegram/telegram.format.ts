@@ -294,31 +294,39 @@ export class TelegramFormat {
     }
   }
 
-  /** Claude 응답 출력 포맷 (코드블록 변환) */
+  /** Claude 응답 출력 포맷 (마크다운 → Telegram HTML 변환) */
   formatClaudeOutput(output: string): string {
-    // 마크다운 코드블록을 HTML pre 태그로 변환
-    let result = output;
+    // 1. HTML 특수문자 먼저 이스케이프
+    let result = this.escapeHTML(output);
 
-    // ```lang\ncode\n``` → <pre><code class="language-lang">code</code></pre>
+    // 2. ```lang\ncode\n``` → <pre><code>code</code></pre>
     result = result.replace(/```(\w+)?\n([\s\S]*?)```/g, (_, lang, code) => {
       const langAttr = lang ? ` class="language-${lang}"` : '';
-      return `<pre><code${langAttr}>${this.escapeHTML(code.trim())}</code></pre>`;
+      return `<pre><code${langAttr}>${code.trim()}</code></pre>`;
     });
 
-    // 인라인 코드 `code` → <code>code</code>
+    // 3. 인라인 코드 `code` → <code>code</code>
     result = result.replace(/`([^`]+)`/g, (_, code) => {
-      return `<code>${this.escapeHTML(code)}</code>`;
+      return `<code>${code}</code>`;
     });
 
-    // **bold** → <b>bold</b>
+    // 4. ### Header → <b>Header</b>
+    result = result.replace(/^#{1,6}\s+(.+)$/gm, (_, text) => {
+      return `<b>${text}</b>`;
+    });
+
+    // 5. **bold** → <b>bold</b>
     result = result.replace(/\*\*([^*]+)\*\*/g, (_, text) => {
       return `<b>${text}</b>`;
     });
 
-    // *italic* → <i>italic</i> (단, ** 제외)
+    // 6. *italic* → <i>italic</i> (단, ** 제외)
     result = result.replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, (_, text) => {
       return `<i>${text}</i>`;
     });
+
+    // 7. --- 수평선 → 구분선
+    result = result.replace(/^-{3,}$/gm, '─────────────────────');
 
     return result;
   }
