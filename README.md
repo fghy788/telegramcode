@@ -4,6 +4,10 @@ Telegram bot that relays messages to [Claude Code](https://github.com/anthropics
 
 [한국어](#한국어)
 
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/4ffabac8-7c58-4966-9e12-47166f0f18c8" alt="TelegramCode Demo" width="400">
+</p>
+
 ---
 
 ## Features
